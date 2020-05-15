@@ -57,7 +57,7 @@ class personaje(object):
 			#Crear clase barra de vida
 			pygame.draw.rect(cuadro, (255,0,0), (self.zonaImpacto[0], self.zonaImpacto[1] - 20, 50, 10))
 			pygame.draw.rect(cuadro, (0,128,0), (self.zonaImpacto[0], self.zonaImpacto[1] - 20, 50 - (5 * (10 - self.salud)), 10))
-			#En caso de querer visualizar el hitbox, descomentar la siguiente línea
+			#En caso de querer visualizar el hitbox, descomentar la siguiente linea
 			#pygame.draw.rect(cuadro, (255,0,0), self.zonaImpacto, 2)
 		else:
 			if self.zonaImpacto[0] != -1:
@@ -181,7 +181,7 @@ class proyectil(object):
 	def dibujar(self, cuadro):
 		self.zonaImpacto = (self.x-self.radio, self.y-self.radio, self.radio*2, self.radio*2)
 		pygame.draw.circle(cuadro, self.color, (self.x, self.y), self.radio)
-		#En caso de querer visualizar el hitbos, descomentar la siguiente línea
+		#En caso de querer visualizar el hitbos, descomentar la siguiente linea
 		#pygame.draw.rect(cuadro, (255,0,0), self.zonaImpacto, 2)
 
 def rePintarCuadroJuego():
@@ -220,23 +220,23 @@ def subirNivel():
 	ventana.blit(marcador, (250 - (marcador.get_width()/2),200))
 	pygame.display.update()
 	pygame.time.delay(2000)
-	#Se verifica si pasó el último nivel
-	#En caso de pasar el último nivel, gana el juego y termina el ciclo del juego (run)
+	#Se verifica si paso el ultimo nivel
+	#En caso de pasar el ultimo nivel, gana el juego y termina el ciclo del juego (run)
 	if nivel >	 nivel_maximo:
 		pygame.mixer.music.stop()
 		gana = True
 		run = False
-	#En caso de pasar un nivel intermedio, se actualiza el villano y la música de acuerdo al nuevo nivel
+	#En caso de pasar un nivel intermedio, se actualiza el villano y la musica de acuerdo al nuevo nivel
 	else:
 		villano = villanos[nivel]
-		#ver si es necesaria la consulta... observación inicial NO SIRVE xd
+		#ver si es necesaria la consulta... observacion inicial NO SIRVE xd
 		#if pygame.mixer.music.get_busy():
 		pygame.mixer.music.stop()
 		musica = pygame.mixer.music.load(ruta_musica[nivel])
 		pygame.mixer.music.play(-1)
 
-repetir = True #Variable que controla la repetición del juego completo con todas sus pantallas
-#Ciclo de repetición de todo el juego
+repetir = True #Variable que controla la repeticion del juego completo con todas sus pantallas
+#Ciclo de repeticion de todo el juego
 while repetir:
 	tanda_disparos = 0
 	balas = []
@@ -356,9 +356,9 @@ while repetir:
 		ventana.fill((0,0,0))
 		titulo = texto_intro.render('JUEGO TERMINADO', 1, (255,0,0))
 		if gana:
-			resultado = texto_resultado.render('¡HAS GANADO! UwU', 1, (255,0,0))
+			resultado = texto_resultado.render('HAS GANADO! UwU', 1, (255,0,0))
 		else:
-			resultado = texto_resultado.render('¡HAS PERDIDO! :(', 1, (255,0,0))
+			resultado = texto_resultado.render('HAS PERDIDO! :(', 1, (255,0,0))
 		pts = texto_intro.render('Puntaje Total: '+str(puntaje), 1, (255,255,255))
 		instrucciones = texto_intro.render('Presione ENTER para cerrar...', 1, (255,255,255))
 		reintentar = texto_intro.render('Presione R para volver al juego...', 1, (255,255,255))
