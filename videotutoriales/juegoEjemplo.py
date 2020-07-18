@@ -69,7 +69,7 @@ class personaje(object):
 				pygame.time.delay(2000)
 			self.zona_impacto = (-1, -1, -1, -1)
 
-	def es_golpeado(self, cuadro):
+	def es_golpeado(self):
 		self.ha_saltado = False
 		self.impulso_salto = 10
 		self.x = 100
@@ -77,14 +77,14 @@ class personaje(object):
 		self.contador_pasos = 0
 		pygame.time.delay(2000)
 
-	def siente_impacto(self, cuadro):
+	def siente_impacto(self):
 		if self.salud > 0:
 			self.salud -= 1
 		else:
 			self.es_visible = False
 			del(self)
 
-	def captura_movimiento(self, k, iz, de, ar, ab, salta):
+	def se_mueve_segun(self, k, iz, de, ar, ab, salta):
 		if k[iz] and self.x > self.velocidad:
 			self.x -= self.velocidad
 			self.va_izquierda = True
@@ -123,7 +123,7 @@ class personaje(object):
 				self.ha_saltado = False
 				self.impulso_salto = 10
 
-	def se_mueve_solo(self, cuadro, nivel):
+	def se_mueve_solo(self, nivel):
 		if self.velocidad > 0:
 			if self.x + self.velocidad < self.camino[1]:
 				self.x += self.velocidad * nivel 
@@ -266,7 +266,7 @@ while repetir:
 
 		ventana.fill((0,0,0)) # pinta el fondo de negro
 		titulo = texto_intro.render('MI PRIMER JUEGO', 1, (255,0,0))
-		personaje_intro.se_mueve_solo(ventana, 2)
+		personaje_intro.se_mueve_solo(2)
 		instrucciones = texto_intro.render('Presione ENTER para continuar...', 1, (255,255,255))
 		ventana.blit(titulo, ((ventana_x//2)-titulo.get_width()//2, 10))
 		ventana.blit(instrucciones, ((ventana_x//2)-instrucciones.get_width()//2, 300))
@@ -292,7 +292,7 @@ while repetir:
 		# contacto directo con villano
 		if villano.es_visible:
 			if heroe.se_encuentra_con(villano):
-				heroe.es_golpeado(ventana)
+				heroe.es_golpeado()
 				puntaje -= 5
 				heroe.salud -= 5
 
@@ -306,7 +306,7 @@ while repetir:
 		for bala in balas:
 			if villano.se_encuentra_con(bala):
 				sonido_golpe.play() # al momento de impactar en el villano
-				villano.siente_impacto(ventana)
+				villano.siente_impacto()
 				puntaje += 1
 				balas.pop(balas.index(bala)) # se elimina la bala del impacto
 
@@ -333,10 +333,10 @@ while repetir:
 				sonido_bala.play() # al momento de disparar
 			tanda_disparos = 1
 
-		heroe.captura_movimiento(tecla, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE)
+		heroe.se_mueve_segun(tecla, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE)
 
 		#villano.capturar_movimiento(keys, pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_x)
-		villano.se_mueve_solo(ventana, nivel)
+		villano.se_mueve_solo(nivel)
 
 		# Consulta para saber si se sube de nivel
 		if villano.salud <= 0:
