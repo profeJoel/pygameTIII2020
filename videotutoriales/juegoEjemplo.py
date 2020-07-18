@@ -41,16 +41,16 @@ class personaje(object):
 			self.contador_pasos = 0
 
 		if self.es_visible:
-			if self.izquierda:
+			if self.va_izquierda:
 				cuadro.blit(self.camina_izquierda[self.contador_pasos//3],(self.x,self.y))
 				self.contador_pasos += 1
-			elif self.derecha:
+			elif self.va_derecha:
 				cuadro.blit(self.camina_derecha[self.contador_pasos//3],(self.x,self.y))
 				self.contador_pasos += 1
 			else:
-				if self.derecha:
+				if self.va_derecha:
 					cuadro.blit(self.camina_derecha[0],(self.x,self.y))
-				elif self.izquierda:
+				elif self.va_izquierda:
 					cuadro.blit(self.camina_izquierda[0],(self.x,self.y))
 				else:
 					cuadro.blit(self.quieto, (self.x,self.y))
@@ -87,16 +87,16 @@ class personaje(object):
 	def captura_movimiento(self, k, iz, de, ar, ab, salta):
 		if k[iz] and self.x > self.velocidad:
 			self.x -= self.velocidad
-			self.izquierda = True
-			self.derecha = False
+			self.va_izquierda = True
+			self.va_derecha = False
 
 		elif k[de] and self.x < ventana_x - self.ancho - self.velocidad:
 			self.x += self.velocidad
-			self.derecha = True
-			self.izquierda = False
+			self.va_derecha = True
+			self.va_izquierda = False
 		else:
-			self.izquierda = False
-			self.derecha = False
+			self.va_izquierda = False
+			self.va_derecha = False
 			self.contador_pasos = 0
 
 
@@ -109,8 +109,8 @@ class personaje(object):
 
 			if k[salta]:
 				self.ha_saltado = True
-				self.izquierda = False
-				self.derecha = False
+				self.va_izquierda = False
+				self.va_derecha = False
 				self.contador_pasos = 0
 		else:
 			if self.impulso_salto >= -10:
@@ -127,29 +127,29 @@ class personaje(object):
 		if self.velocidad > 0:
 			if self.x + self.velocidad < self.camino[1]:
 				self.x += self.velocidad * nivel 
-				self.derecha = True
-				self.izquierda = False
+				self.va_derecha = True
+				self.va_izquierda = False
 			else:
 				self.velocidad = self.velocidad * -1
 				self.contador_pasos = 0
 		else:
 			if self.x - self.velocidad > self.camino[0]:
 				self.x += self.velocidad * nivel 
-				self.izquierda = True
-				self.derecha = False
+				self.va_izquierda = True
+				self.va_derecha = False
 			else:
 				self.velocidad = self.velocidad * -1
 				self.contador_pasos = 0
 
-	def se_encuentra_con(self, tocador):
-		R1_ab=self.zona_impacto[1] + self.zona_impacto[3]
-		R1_ar=self.zona_impacto[1]
-		R1_iz=self.zona_impacto[0]
-		R1_de=self.zona_impacto[0] + self.zona_impacto[2]
-		R2_ab=tocador.zona_impacto[1] + tocador.zona_impacto[3]
-		R2_ar=tocador.zona_impacto[1]
-		R2_iz=tocador.zona_impacto[0]
-		R2_de=tocador.zona_impacto[0] + tocador.zona_impacto[2]
+	def se_encuentra_con(self, alguien):
+		R1_ab = self.zona_impacto[1] + self.zona_impacto[3]
+		R1_ar = self.zona_impacto[1]
+		R1_iz = self.zona_impacto[0]
+		R1_de = self.zona_impacto[0] + self.zona_impacto[2]
+		R2_ab = alguien.zona_impacto[1] + alguien.zona_impacto[3]
+		R2_ar = alguien.zona_impacto[1]
+		R2_iz = alguien.zona_impacto[0]
+		R2_de = alguien.zona_impacto[0] + alguien.zona_impacto[2]
 
 		return R1_de > R2_iz and R1_iz < R2_de and R1_ar < R2_ab and R1_ab > R2_ar
 
@@ -266,7 +266,7 @@ while repetir:
 
 		ventana.fill((0,0,0)) # pinta el fondo de negro
 		titulo = texto_intro.render('MI PRIMER JUEGO', 1, (255,0,0))
-		personaje_intro.mover_solo(ventana, 2)
+		personaje_intro.se_mueve_solo(ventana, 2)
 		instrucciones = texto_intro.render('Presione ENTER para continuar...', 1, (255,255,255))
 		ventana.blit(titulo, ((ventana_x//2)-titulo.get_width()//2, 10))
 		ventana.blit(instrucciones, ((ventana_x//2)-instrucciones.get_width()//2, 300))
@@ -333,7 +333,7 @@ while repetir:
 				sonido_bala.play() # al momento de disparar
 			tanda_disparos = 1
 
-		heroe.captura_movimiento(keys, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE)
+		heroe.captura_movimiento(tecla, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE)
 
 		#villano.capturar_movimiento(keys, pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_x)
 		villano.se_mueve_solo(ventana, nivel)
