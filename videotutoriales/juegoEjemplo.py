@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-pygame.init() # HOla Cris
+pygame.init() # HOla Cris Holi :D
 ventana_x = 850
 ventana_y = 480
 ventana = pygame.display.set_mode((ventana_x,ventana_y))
