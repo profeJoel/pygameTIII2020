@@ -23,8 +23,8 @@ class personaje(object):
 		self.velocidad = 5
 		self.ha_saltado = False
 		self.impulso_salto = 10
-		self.izquierda = False
-		self.derecha = False
+		self.va_izquierda = False
+		self.va_derecha = False
 		self.contador_pasos = 0
 		self.fin = fin
 		self.camino = [self.x, self.fin]
@@ -69,7 +69,7 @@ class personaje(object):
 				pygame.time.delay(2000)
 			self.zona_impacto = (-1, -1, -1, -1)
 
-	def impactar_final(self,cuadro):
+	def es_golpeado(self, cuadro):
 		self.ha_saltado = False
 		self.impulso_salto = 10
 		self.x = 100
@@ -77,14 +77,14 @@ class personaje(object):
 		self.contador_pasos = 0
 		pygame.time.delay(2000)
 
-	def impactar(self, cuadro):
+	def siente_impacto(self, cuadro):
 		if self.salud > 0:
 			self.salud -= 1
 		else:
 			self.es_visible = False
 			del(self)
 
-	def capturar_movimiento(self, k, iz, de, ar, ab, salta):
+	def captura_movimiento(self, k, iz, de, ar, ab, salta):
 		if k[iz] and self.x > self.velocidad:
 			self.x -= self.velocidad
 			self.izquierda = True
@@ -123,7 +123,7 @@ class personaje(object):
 				self.ha_saltado = False
 				self.impulso_salto = 10
 
-	def mover_solo(self, cuadro, nivel):
+	def se_mueve_solo(self, cuadro, nivel):
 		if self.velocidad > 0:
 			if self.x + self.velocidad < self.camino[1]:
 				self.x += self.velocidad * nivel 
@@ -141,7 +141,7 @@ class personaje(object):
 				self.velocidad = self.velocidad * -1
 				self.contador_pasos = 0
 
-	def me_ha_tocao(self, tocador):
+	def se_encuentra_con(self, tocador):
 		R1_ab=self.zona_impacto[1] + self.zona_impacto[3]
 		R1_ar=self.zona_impacto[1]
 		R1_iz=self.zona_impacto[0]
@@ -196,9 +196,9 @@ def subir_nivel():
 	global nivel
 	global nivel_maximo
 	global villano
-	global musica
+	global musica_fondo
 	global ventana
-	global run
+	global esta_jugando
 	global gana
 	
 	nivel += 1#Marca subida de nivel
@@ -209,23 +209,27 @@ def subir_nivel():
 	pygame.display.update()
 	pygame.time.delay(2000)
 	#Se verifica si paso el ultimo nivel
-	#En caso de pasar el ultimo nivel, gana el juego y termina el ciclo del juego (run)
+	#En caso de pasar el ultimo nivel, gana el juego y termina el ciclo del juego (esta_jugando)
 	if nivel >	 nivel_maximo:
 		pygame.mixer.music.stop()
 		gana = True
-		run = False
+		esta_jugando = False
 	#En caso de pasar un nivel intermedio, se actualiza el villano y la musica de acuerdo al nuevo nivel
 	else:
 		villano = villanos[nivel]
 		#ver si es necesaria la consulta... observacion inicial NO SIRVE xd
 		#if pygame.mixer.music.get_busy():
 		pygame.mixer.music.stop()
-		musica = pygame.mixer.music.load(ruta_musica[nivel])
+		musica_fondo = pygame.mixer.music.load(ruta_musica[nivel])
 		pygame.mixer.music.play(-1)
+
+# Inicio Funcion principal
 
 repetir = True #Variable que controla la repeticion del juego completo con todas sus pantallas
 #Ciclo de repeticion de todo el juego
 while repetir:
+
+	# Inicializacion de elementos del juego
 	tanda_disparos = 0
 	balas = []
 	puntaje = 0
@@ -239,7 +243,7 @@ while repetir:
 
 	imagen_fondo = [pygame.image.load('img/bg0.jpg'), pygame.image.load('img/bg.jpg'), pygame.image.load('img/bg1.jpg'), pygame.image.load('img/bg2.jpg')]
 	ruta_musica = ["snd/dubstep.mp3","snd/moose.mp3","snd/evolution.mp3","snd/epic.mp3"]
-	musica = pygame.mixer.music.load(ruta_musica[nivel])
+	musica_fondo = pygame.mixer.music.load(ruta_musica[nivel])
 	pygame.mixer.music.play(-1)
 
 	texto_puntos = pygame.font.SysFont('comicsans', 30, True)
@@ -247,46 +251,52 @@ while repetir:
 	texto_intro = pygame.font.SysFont('console', 30, True)
 	texto_resultado = pygame.font.SysFont('console', 80, True)
 
-	intro = True
+	esta_en_intro = True
 	gana = False
-	mono = personaje(50,150,64,64,"heroe",700)
+	personaje_intro = personaje(50,150,64,64,"heroe",700)
 
-	while intro:
+	# Seccion de intro
+	while esta_en_intro:
+		# control de velocidad del juego
 		reloj.tick(27)
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
+		# evento de boton de cierre de ventana
+		for evento in pygame.event.get():
+			if evento.type == pygame.QUIT:
 				quit()
-		ventana.fill((0,0,0))
+
+		ventana.fill((0,0,0)) # pinta el fondo de negro
 		titulo = texto_intro.render('MI PRIMER JUEGO', 1, (255,0,0))
-		mono.mover_solo(ventana, 2)
+		personaje_intro.mover_solo(ventana, 2)
 		instrucciones = texto_intro.render('Presione ENTER para continuar...', 1, (255,255,255))
 		ventana.blit(titulo, ((ventana_x//2)-titulo.get_width()//2, 10))
 		ventana.blit(instrucciones, ((ventana_x//2)-instrucciones.get_width()//2, 300))
 
-		keys = pygame.key.get_pressed()
+		tecla = pygame.key.get_pressed()
 
-		if keys[pygame.K_RETURN]:
-			intro=False
-			run = True
+		if tecla[pygame.K_RETURN]:
+			esta_en_intro=False
+			esta_jugando = True
 
-
-		mono.dibujar(ventana)
+		personaje_intro.dibujar(ventana)
 		pygame.display.update()
 
-	while run:
+	# Seccion de juego
+	while esta_jugando:
+		# control de velocidad del juego
 		reloj.tick(27)
-
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT:
+		# evento de boton de cierre de ventana
+		for evento in pygame.event.get():
+			if evento.type == pygame.QUIT:
 				quit()
 
-		#contacto directo con villano
+		# contacto directo con villano
 		if villano.es_visible:
-			if heroe.me_ha_tocao(villano):
-				heroe.impactar_final(ventana)
+			if heroe.se_encuentra_con(villano):
+				heroe.es_golpeado(ventana)
 				puntaje -= 5
 				heroe.salud -= 5
 
+		# Manejo de los disparos
 		if tanda_disparos > 0:
 			tanda_disparos += 1
 		if tanda_disparos > 3:
@@ -294,54 +304,56 @@ while repetir:
 
 		#contacto de proyectil con el villano
 		for bala in balas:
-			if villano.me_ha_tocao(bala):
-				sonido_golpe.play()
-				villano.impactar(ventana)
+			if villano.se_encuentra_con(bala):
+				sonido_golpe.play() # al momento de impactar en el villano
+				villano.siente_impacto(ventana)
 				puntaje += 1
-				balas.pop(balas.index(bala))
+				balas.pop(balas.index(bala)) # se elimina la bala del impacto
 
-			# movimiento de la bala
+			# movimiento de la bala dentro de los limites de la ventana
 			if bala.x < ventana_x and bala.x > 0:
 				bala.x += bala.velocidad
 			else:
-				balas.pop(balas.index(bala))
+				balas.pop(balas.index(bala)) # se elimina la bala fuera de la ventana
 
-		keys = pygame.key.get_pressed()
+		# Captura evento de teclas
+		tecla = pygame.key.get_pressed()
 
 		# capturar evento del disparo
-		if keys[pygame.K_x] and tanda_disparos == 0:
-			if heroe.izquierda:
+		if tecla[pygame.K_x] and tanda_disparos == 0:
+			if heroe.va_izquierda:
 				direccion = -1
-			elif heroe.derecha:
+			elif heroe.va_derecha:
 				direccion = 1
 			else:
 				direccion = 0
 
 			if len(balas) < 5: # balas en pantalla
 				balas.append(proyectil(round(heroe.x + heroe.ancho // 2), round(heroe.y + heroe.alto // 2), 6, (0,0,0), direccion))
-				sonido_bala.play()
+				sonido_bala.play() # al momento de disparar
 			tanda_disparos = 1
 
-
-		heroe.capturar_movimiento(keys, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE)
+		heroe.captura_movimiento(keys, pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE)
 
 		#villano.capturar_movimiento(keys, pygame.K_a, pygame.K_d, pygame.K_w, pygame.K_s, pygame.K_x)
-		villano.mover_solo(ventana, nivel)
+		villano.se_mueve_solo(ventana, nivel)
 
 		# Consulta para saber si se sube de nivel
 		if villano.salud <= 0:
 			subir_nivel()
 		if heroe.salud <= 0:
-			run = False
-
+			esta_jugando = False
+		# modifica la ventana
 		repintar_cuadro_juego()
 		
+	# Seccion de pantalla final
 	final = True
 	while final:
+		# evento de boton de cierre de ventana
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				quit()
-		ventana.fill((0,0,0))
+		ventana.fill((0,0,0)) # pinta el fondo de negro
 		titulo = texto_intro.render('JUEGO TERMINADO', 1, (255,0,0))
 		if gana:
 			resultado = texto_resultado.render('HAS GANADO! UwU', 1, (255,0,0))
@@ -357,19 +369,18 @@ while repetir:
 		ventana.blit(reintentar, ((ventana_x//2)-reintentar.get_width()//2, 350))
 		pygame.display.update()
 
-		keys = pygame.key.get_pressed()
+		tecla = pygame.key.get_pressed()
 
-		if keys[pygame.K_RETURN]:
+		if tecla[pygame.K_RETURN]:
 			repetir=False
 			final=False
 
-		if keys[pygame.K_r]:
+		if tecla[pygame.K_r]:
 			repetir=True
 			final=False
-
+			# se asegura de eliminar los objetos de cada personaje
 			del(heroe)
 			del(villano)
 
-
-
+# Termina el juego y finaliza los elementos de pygame
 pygame.quit()
