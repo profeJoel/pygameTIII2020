@@ -10,7 +10,7 @@ reloj = pygame.time.Clock()
 
 # Inicio Funcion principal
 
-repetir = True #Variable que controla la repeticion del juego completo con todas sus pantallas
+repetir = True #Variable que controla la repetición del juego completo con todas sus pantallas
 #Ciclo de repeticion de todo el juego
 while repetir:
 	# Seccion de juego

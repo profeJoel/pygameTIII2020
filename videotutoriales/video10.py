@@ -1,7 +1,7 @@
 import pygame
 from pygame.locals import *
 
-pygame.init() # HOla Cris Holi :D
+pygame.init()
 ventana_x = 850
 ventana_y = 480
 ventana = pygame.display.set_mode((ventana_x,ventana_y))
@@ -43,12 +43,7 @@ class personaje(object):
 			cuadro.blit(self.camina_derecha[self.contador_pasos//3],(self.x,self.y))
 			self.contador_pasos += 1
 		else:
-			if self.va_derecha:
-				cuadro.blit(self.camina_derecha[0],(self.x,self.y))
-			elif self.va_izquierda:
-				cuadro.blit(self.camina_izquierda[0],(self.x,self.y))
-			else:
-				cuadro.blit(self.quieto, (self.x,self.y))
+			cuadro.blit(self.quieto, (self.x,self.y))
 			
 
 	def se_mueve_segun(self, k, iz, de, ar, ab, salta):

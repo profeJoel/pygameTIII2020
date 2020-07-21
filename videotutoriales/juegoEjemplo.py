@@ -43,12 +43,7 @@ class personaje(object):
 				cuadro.blit(self.camina_derecha[self.contador_pasos//3],(self.x,self.y))
 				self.contador_pasos += 1
 			else:
-				if self.va_derecha:
-					cuadro.blit(self.camina_derecha[0],(self.x,self.y))
-				elif self.va_izquierda:
-					cuadro.blit(self.camina_izquierda[0],(self.x,self.y))
-				else:
-					cuadro.blit(self.quieto, (self.x,self.y))
+				cuadro.blit(self.quieto, (self.x,self.y))
 			self.zona_impacto = (self.x + 15, self.y + 10, 30, 50)
 			#Crear clase barra de vida
 			pygame.draw.rect(cuadro, (255,0,0), (self.zona_impacto[0], self.zona_impacto[1] - 20, 50, 10))
