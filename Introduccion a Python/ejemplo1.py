@@ -1,5 +1,5 @@
 #w3school
-#tutorialesya
+#tutorialesya -> tutoriales de Python en español
 """
 saludo = "Hola Clase"
 asignatura = "TIII"
