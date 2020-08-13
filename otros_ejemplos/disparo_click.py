@@ -152,9 +152,9 @@ class personaje(object):
         self.salud -= 5
         pygame.time.delay(2000)
 
+######################################################################################################################
 #Clase Proyectil
-
-
+# Modificada para aceptar disparo guiado por el mouse
 class proyectil(object):
     def __init__(self, x, y, radio, color, destino):
         self.x = x
@@ -162,13 +162,17 @@ class proyectil(object):
         self.radio = radio
         self.color = color
         self.destino = destino
+        # se calcula la PENDIENTE
         if self.destino[0] == self.x:
             self.m = None
         else:
             self.m = (destino[1] - y) / (destino[0] - x)
+        # se almacena el valor del punto original
         self.x0 = self.x
         self.y0 = self.y
+        # se establece una rapidez -> si deseas modificar la velocidad, modifica esta variable en su lugar
         self.rapidez = 20
+        # se calcula la velocidad proporcionalmente para que se avanzara siempre en la misma rapidez
         self.velocidad = (self.rapidez * (destino[0] - x)) / (((destino[1] - y)**2 + (destino[0] - x)**2)**(0.5))
         self.zona_impacto = (self.x - self.radio, self.y - self.radio, self.radio*2, self.radio*2)
 
@@ -176,14 +180,21 @@ class proyectil(object):
         self.zona_impacto = (self.x - self.radio, self.y - self.radio, self.radio*2, self.radio*2)
         pygame.draw.circle(cuadro, self.color, (self.x, self.y), self.radio)
 
+    # funcion para realizar el movimiento del disparo en el eje x e y
     def se_mueve(self):
+        # caso para los movimientos verticales
         if self.m == None:
+            # caso si se dispara hacia arriba
             if self.destino[1] < self.y0:
                 self.y -= self.rapidez
+            # caso si se dispara hacia abajo
             else:
                 self.y += self.rapidez
+        # caso para el resto de movimientos
         else:
+            # se crea nueva x 
             self.x += self.velocidad
+            # se evalua la nueva y usando la ecuación de la recta correspondiente
             self.y = self.m * (self.x - self.x0) + self.y0
 
     #Bala impacta a un personaje
@@ -194,9 +205,12 @@ class proyectil(object):
             #alguien.es_visible = False
             del(alguien)
 
+######################################################################################################################
+
+
+
+
 #Función para repintar el cuadro de juego
-
-
 def repintar_cuadro_juego():
     #Dibujar fondo del nivel
     if nivel <= nivel_maximo:
@@ -335,6 +349,7 @@ while repetir:
         if tanda_disparos > 3:
             tanda_disparos = 0
             
+        ######################################################################################################################
         #Captura de Mouse
         maus = pygame.mouse.get_pressed()
 
@@ -348,19 +363,20 @@ while repetir:
 
             # movimiento de la bala dentro de los limites de la ventana
             if bala.x < ventana_x and bala.x > 0 and bala.y < ventana_y and bala.y > 0:
-                bala.se_mueve()
+                bala.se_mueve() # se lanza la funcion de movimiento del disparo
             else:
                 balas.pop(balas.index(bala))  # se elimina la bala fuera de la ventana
 
-        # capturar evento del disparo
-        #if teclas[pygame.K_x] and tanda_disparos == 0:
+        # capturar evento del disparo con el click (click izquierdo)
         if maus[0] and tanda_disparos == 0:
+            # se captura la posicion (x,y) del mouse
             destino = pygame.mouse.get_pos()
 
             if len(balas) < 5:  # balas en pantalla
                 balas.append(proyectil(round(heroe.x + heroe.ancho // 2), round(heroe.y + heroe.alto // 2), 6, (0, 0, 0), destino))
             sonido_bala.play()  # al momento de disparar
             tanda_disparos = 1
+        ######################################################################################################################
 
         # Consulta para saber si se sube de nivel
         if villano.salud <= 0:
