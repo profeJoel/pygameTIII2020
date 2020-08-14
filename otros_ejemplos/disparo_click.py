@@ -314,8 +314,7 @@ while repetir:
         instrucciones = texto_intro.render(
             'Presione ENTER para continuar...', 1, (255, 255, 255))
         ventana.blit(titulo, ((ventana_x//2)-titulo.get_width()//2, 10))
-        ventana.blit(instrucciones, ((ventana_x//2) -
-                               instrucciones.get_width()//2, 300))
+        ventana.blit(instrucciones, ((ventana_x//2) - instrucciones.get_width()//2, 300))
 
         tecla = pygame.key.get_pressed()
 
