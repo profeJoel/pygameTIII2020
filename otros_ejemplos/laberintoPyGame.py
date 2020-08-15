@@ -2,8 +2,8 @@ import pygame
 from pygame.locals import *
 
 pygame.init()
-ventana_x = 2200 # se debe acomodar al tamaño del laberinto
-ventana_y = 400 # se debe acomodar al tamaño del laberinto
+ventana_x = 800 # se debe acomodar al tamaño del laberinto
+ventana_y = 800 # se debe acomodar al tamaño del laberinto
 ventana = pygame.display.set_mode((ventana_x,ventana_y))
 pygame.display.set_caption("MI PRIMER JUEGO")
 reloj = pygame.time.Clock()
@@ -331,8 +331,8 @@ while repetir:
 
 ######################################################################################################################
     # Carga mapa laberinto
-    #laberinto_ejemplo = laberinto("mapa.dat") # tamaño ventana (800,800)
-    laberinto_ejemplo = laberinto("laberinto1.dat") # tamaño ventana (2200,400)
+    laberinto_ejemplo = laberinto("mapa.dat") # tamaño ventana (800,800)
+    #laberinto_ejemplo = laberinto("laberinto1.dat") # tamaño ventana (2200,400)
     #laberinto_ejemplo = laberinto("laberinto2.dat") # tamaño ventana (2200, 400)
     laberinto_ejemplo.cargar()
 
