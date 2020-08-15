@@ -2,8 +2,8 @@ import pygame
 from pygame.locals import *
 
 pygame.init()
-ventana_x = 480
-ventana_y = 480
+ventana_x = 2200 # se debe acomodar al tamaño del laberinto
+ventana_y = 400 # se debe acomodar al tamaño del laberinto
 ventana = pygame.display.set_mode((ventana_x,ventana_y))
 pygame.display.set_caption("MI PRIMER JUEGO")
 reloj = pygame.time.Clock()
@@ -24,8 +24,11 @@ class personaje(object):
         self.va_arriba = False
         self.va_abajo = False
         self.contador_pasos = 0
+
+######################################################################################################################
         self.quieto = pygame.transform.scale( pygame.image.load("img2/ratastanding.png"), (ancho,ancho))
-        self.en_movimiento = pygame.transform.scale( pygame.image.load("img2/ratita.png"), (ancho,ancho))
+        self.en_movimiento = pygame.transform.scale(pygame.image.load("img2/ratita.png"), (ancho, ancho))
+######################################################################################################################
         
         self.izquierda = pygame.transform.rotate(self.en_movimiento, -90)
         self.derecha = pygame.transform.rotate(self.en_movimiento, 90)
@@ -41,6 +44,11 @@ class personaje(object):
         #Hitbox
         self.zona_impacto = (self.x + 15, self.y + 10, 30, 50)
 
+        self.x0 = 0
+        self.y0 = 0
+
+
+######################################################################################################################
     def dibujar(self, cuadro):
         #Son 9 imágenes de la animación, para que cada una dure 3 vueltas de ciclo se multiplica por 3
         """
@@ -70,8 +78,10 @@ class personaje(object):
         """
         
 
-    def se_mueve_segun(self, k, iz, de, ar, ab, salta):
-        if k[iz] and self.x >= self.velocidad:
+######################################################################################################################
+    def se_mueve_segun(self, k, iz, de, ar, ab, salta, lab):
+        
+        if k[iz] and self.x >= self.velocidad and lab.obtener_tipo(self.x - self.velocidad, self.y) != "muro" and lab.obtener_tipo(self.x - self.velocidad, self.y + self.alto) != "muro":
             self.x -= self.velocidad
             #Controles de animación
             self.va_izquierda = True
@@ -79,7 +89,7 @@ class personaje(object):
             self.va_abajo = False
             self.va_arriba = False
 
-        elif k[de] and self.x <= ventana_x - self.ancho - self.velocidad:
+        elif k[de] and self.x <= ventana_x - self.ancho - self.velocidad and lab.obtener_tipo(self.x + self.ancho + self.velocidad, self.y) != "muro" and lab.obtener_tipo(self.x + self.ancho + self.velocidad, self.y + self.alto) != "muro":
             self.x += self.velocidad
             #Controles de animación
             self.va_derecha = True
@@ -110,14 +120,14 @@ class personaje(object):
                 self.impulso_salto = 10
         else:
             #Permite moverse arriba y abajo sin saltar
-            if k[ar] and self.y >= self.velocidad:
+            if k[ar] and self.y >= self.velocidad and lab.obtener_tipo(self.x, self.y - self.velocidad) != "muro" and lab.obtener_tipo(self.x + self.ancho, self.y - self.velocidad) != "muro":
                 self.y -= self.velocidad
                 self.va_izquierda = False
                 self.va_derecha = False
                 self.va_abajo = False
                 self.va_arriba = True
 
-            if k[ab] and self.y <= ventana_y - self.alto - self.velocidad:
+            if k[ab] and self.y <= ventana_y - self.alto - self.velocidad and lab.obtener_tipo(self.x, self.y + self.alto + self.velocidad) != "muro" and lab.obtener_tipo(self.x + self.ancho, self.y + self.alto + self.velocidad) != "muro":
                 self.y += self.velocidad
                 self.va_izquierda = False
                 self.va_derecha = False
@@ -132,6 +142,9 @@ class personaje(object):
                 self.va_abajo = False
                 self.va_arriba = False
                 self.contador_pasos = 0
+
+
+######################################################################################################################
         
     def se_mueve_solo(self, nivel):
         if self.velocidad > 0:
@@ -175,6 +188,8 @@ class personaje(object):
         self.salud -= 5
         pygame.time.delay(2000)
 
+
+######################################################################################################################
 #Clase bloque
 class bloque(object):
     def __init__(self, x, y, ancho, tipo):
@@ -184,7 +199,7 @@ class bloque(object):
         self.ancho = ancho
         self.imagen = pygame.transform.scale(pygame.image.load("img2/" + tipo + ".png"), (self.ancho, self.ancho))
         #self.alto
-        #self.zona_impacto = [self.x, self.y, ancho, ancho]
+        self.zona_impacto = [self.x, self.y, ancho, ancho]
 
     def dibujar(self, cuadro):
         cuadro.blit(self.imagen, (self.x, self.y))
@@ -197,7 +212,6 @@ class laberinto(object):
         self.ancho = 64
         self.cantidad = 0
 
-
     def cargar(self):
         i=0
         with open(self.mapa) as en_archivo:
@@ -206,13 +220,22 @@ class laberinto(object):
                 posicion = linea.split(' ')
                 if i == 0:
                     self.cantidad = len(posicion) - 1
-                    self.ancho = ventana_x // self.cantidad + 1
+                    self.ancho = ventana_x // self.cantidad
+                    print(self.cantidad, self.ancho)
                 j=0
                 for pos in posicion:
                     if pos == '0':
                         self.matriz[i].append(bloque(j * self.ancho, i * self.ancho, self.ancho, "pasto"))
                     elif pos == '1':
                         self.matriz[i].append(bloque(j * self.ancho, i * self.ancho, self.ancho, "muro"))
+                    elif pos == 'F':
+                        self.matriz[i].append(bloque(j * self.ancho, i * self.ancho, self.ancho, "queso_pasto"))
+                    else:
+                        pass
+                        """
+                        print("No se carga " + str(i) + str(j))
+                        self.matriz[i].append(bloque(j * self.ancho, i * self.ancho, self.ancho, "pasto"))
+                        """
                     j += 1	
                 i += 1
     
@@ -220,18 +243,29 @@ class laberinto(object):
         for fila in self.matriz:
             for lugar in fila:
                 lugar.dibujar(cuadro)
-        pygame.display.update()
+        #pygame.display.update()
+
+    def pinta_espacio(self, anterior, cuadro):
+        x = anterior[0] // self.ancho
+        y = anterior[1] // self.ancho
+        self.matriz[x][y].dibujar(cuadro)
+        #pygame.display.update()
+
+    def obtener_tipo(self, x, y):
+        j = x // self.ancho # horizontal
+        i = y // self.ancho # vertical
+        #print(self.matriz[i][j].tipo)
+        return self.matriz[i][j].tipo
+
+    def llega_salida(self, alguien):
+        return self.obtener_tipo(alguien.x, alguien.y) == "queso_pasto"
+
+
+######################################################################################################################
 
 #Función para repintar el cuadro de juego
 def repintar_cuadro_juego():
     #Dibujar fondo del nivel
-    """
-    if nivel <= nivel_maximo:
-        ventana.blit(imagen_fondo[nivel],(0,0))
-    else:
-        ventana.fill((0,0,0))
-    """
-    #ventana.fill((0,0,0))
     laberinto_ejemplo.pintar(ventana)
     #Dibujar Héroe
     heroe.dibujar(ventana)
@@ -292,17 +326,21 @@ while repetir:
     texto_resultado = pygame.font.SysFont('console', 80, True)
     esta_en_intro = True
     gana = False
-    personaje_intro = personaje(50,150,"heroe",700, 64)
+    personaje_intro = personaje(50, 150, "heroe", ventana_y - 50, 64)
 
-    
+
+######################################################################################################################
     # Carga mapa laberinto
-    laberinto_ejemplo = laberinto("mapa.dat")
-    #laberinto_ejemplo = laberinto("laberinto1.dat")
-    #laberinto_ejemplo = laberinto("laberinto2.dat")
+    #laberinto_ejemplo = laberinto("mapa.dat") # tamaño ventana (800,800)
+    laberinto_ejemplo = laberinto("laberinto1.dat") # tamaño ventana (2200,400)
+    #laberinto_ejemplo = laberinto("laberinto2.dat") # tamaño ventana (2200, 400)
     laberinto_ejemplo.cargar()
 
+
     #Creación Personaje Héroe
-    heroe=personaje(int(ventana_x/2), int(ventana_y/2),"heroe", ventana_x, laberinto_ejemplo.ancho)#Agregar límite
+    heroe=personaje(0, 0,"heroe", ventana_x, laberinto_ejemplo.ancho - 10)#Agregar límite
+
+######################################################################################################################
 
     #Variables Balas
     tanda_disparos = 0
@@ -336,17 +374,7 @@ while repetir:
         pygame.display.update()
 
 
-
-
-
-
-
-
-
-
-
-
-
+######################################################################################################################
     # Seccion de juego
     #esta_jugando=True
     while esta_jugando:
@@ -356,15 +384,18 @@ while repetir:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
                 quit()
-        
+
         teclas=pygame.key.get_pressed()
-        heroe.se_mueve_segun(teclas,pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE)
-        
-        
+        heroe.se_mueve_segun(teclas,pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE, laberinto_ejemplo)
+
+        # con esto se comprueba si el personaje llega al bloque final meta (queso)
+        if laberinto_ejemplo.llega_salida(heroe):
+            gana = True
+            esta_jugando = False
+
         repintar_cuadro_juego()
 
-
-
+######################################################################################################################
 
 
 
@@ -391,14 +422,19 @@ while repetir:
         titulo = texto_intro.render('JUEGO TERMINADO', 1, (255,0,0))
         if gana:
             resultado = texto_resultado.render('HAS GANADO! UwU', 1, (255,0,0))
+            imagen_victoria = pygame.image.load("img2/ratafeliz.png")
+            ventana.blit(imagen_victoria, (ventana_x//2 - imagen_victoria.get_width()//2, ventana_y//2 - imagen_victoria.get_height()//2))
         else:
-            resultado = texto_resultado.render('HAS PERDIDO! :(', 1, (255,0,0))
+            resultado = texto_resultado.render(
+                'HAS PERDIDO! :(', 1, (255, 0, 0))
+            imagen_fracaso = pygame.image.load("img2/ratatriste.png")
+            ventana.blit(imagen_fracaso, (ventana_x//2 - imagen_fracaso.get_width()//2, ventana_y//2 - imagen_fracaso.get_height()//2))
         pts = texto_intro.render('Puntaje Total: '+str(puntaje), 1, (255,255,255))
         instrucciones = texto_intro.render('Presione ENTER para cerrar...', 1, (255,255,255))
         reintentar = texto_intro.render('Presione R para volver al juego...', 1, (255,255,255))
         ventana.blit(titulo, ((ventana_x//2)-titulo.get_width()//2, 10))
         ventana.blit(resultado, ((ventana_x//2)-resultado.get_width()//2, 200))
-        ventana.blit(pts,((ventana_x//2)-titulo.get_width()//2, 100))
+        #ventana.blit(pts,((ventana_x//2)-titulo.get_width()//2, 100))
         ventana.blit(instrucciones, ((ventana_x//2)-instrucciones.get_width()//2, 300))
         ventana.blit(reintentar, ((ventana_x//2)-reintentar.get_width()//2, 350))
         pygame.display.update()
