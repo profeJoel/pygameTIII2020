@@ -331,7 +331,8 @@ while repetir:
 
 ######################################################################################################################
     # Carga mapa laberinto
-    laberinto_ejemplo = laberinto("mapa.dat") # tamaño ventana (800,800)
+    #laberinto_ejemplo = laberinto("mapa.dat") # tamaño ventana (800,800)
+    laberinto_ejemplo = laberinto("laberinto25x25.dat") # tamaño ventana (800,800)
     #laberinto_ejemplo = laberinto("laberinto1.dat") # tamaño ventana (2200,400)
     #laberinto_ejemplo = laberinto("laberinto2.dat") # tamaño ventana (2200, 400)
     laberinto_ejemplo.cargar()
