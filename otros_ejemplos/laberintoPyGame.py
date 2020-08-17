@@ -44,17 +44,9 @@ class personaje(object):
         #Hitbox
         self.zona_impacto = (self.x + 15, self.y + 10, 30, 50)
 
-        self.x0 = 0
-        self.y0 = 0
-
-
 ######################################################################################################################
     def dibujar(self, cuadro):
         #Son 9 imágenes de la animación, para que cada una dure 3 vueltas de ciclo se multiplica por 3
-        """
-        if self.contador_pasos + 1 > 27:
-            self.contador_pasos = 0
-        """
         if self.va_izquierda:
             cuadro.blit(self.izquierda, (self.x,self.y))
         elif self.va_derecha:
@@ -70,13 +62,6 @@ class personaje(object):
         self.zona_impacto = (self.x + 15, self.y + 10, 30, 50)
         #En caso de querer visualizar el hitbox, descomentar la siguiente linea
         #pygame.draw.rect(cuadro, (255,0,0), self.zona_impacto, 2)
-
-        """
-        #Crear clase barra de vida
-        pygame.draw.rect(cuadro, (255,0,0), (self.zona_impacto[0], self.zona_impacto[1] - 20, 50, 10))
-        pygame.draw.rect(cuadro, (0,128,0), (self.zona_impacto[0], self.zona_impacto[1] - 20, 50 - (5 * (10 - self.salud)), 10))
-        """
-        
 
 ######################################################################################################################
     def se_mueve_segun(self, k, iz, de, ar, ab, salta, lab):
@@ -103,7 +88,6 @@ class personaje(object):
             self.va_abajo = False
             self.va_arriba = False
             self.contador_pasos = 0
-
 
         #Control de Salto
 
@@ -143,7 +127,6 @@ class personaje(object):
                 self.va_arriba = False
                 self.contador_pasos = 0
 
-
 ######################################################################################################################
         
     def se_mueve_solo(self, nivel):
@@ -163,7 +146,6 @@ class personaje(object):
             else:
                 self.velocidad = self.velocidad * -1
                 self.contador_pasos = 0
-        
 
     #Detección de colisiones
     def se_encuentra_con(self, alguien):
@@ -187,7 +169,6 @@ class personaje(object):
         self.contador_pasos = 0
         self.salud -= 5
         pygame.time.delay(2000)
-
 
 ######################################################################################################################
 #Clase bloque
@@ -221,7 +202,7 @@ class laberinto(object):
                 if i == 0:
                     self.cantidad = len(posicion) - 1
                     self.ancho = ventana_x // self.cantidad
-                    print(self.cantidad, self.ancho)
+                    #print(self.cantidad, self.ancho)
                 j=0
                 for pos in posicion:
                     if pos == '0':
@@ -232,10 +213,6 @@ class laberinto(object):
                         self.matriz[i].append(bloque(j * self.ancho, i * self.ancho, self.ancho, "queso_pasto"))
                     else:
                         pass
-                        """
-                        print("No se carga " + str(i) + str(j))
-                        self.matriz[i].append(bloque(j * self.ancho, i * self.ancho, self.ancho, "pasto"))
-                        """
                     j += 1	
                 i += 1
     
@@ -260,7 +237,6 @@ class laberinto(object):
     def llega_salida(self, alguien):
         return self.obtener_tipo(alguien.x, alguien.y) == "queso_pasto"
 
-
 ######################################################################################################################
 
 #Función para repintar el cuadro de juego
@@ -271,10 +247,12 @@ def repintar_cuadro_juego():
     heroe.dibujar(ventana)
     #Crear textos del nivel
     puntos = texto_puntos.render('Puntaje: ' + str(puntaje), 1, (0,0,0))
-    nivel_actual = texto_nivel.render('Nivel: ' + str(nivel), 1, (0,0,0))
+    nivel_actual = texto_nivel.render('Nivel: ' + str(nivel), 1, (0, 0, 0))
+    tiempo_restante = texto_nivel.render('Segundos restante: ' + str(int(segundos_restantes)), 1, (0, 0, 0))
     #Dibujar textos del nivel
     ventana.blit(puntos, (350, 10))
     ventana.blit(nivel_actual, (350, 30))
+    ventana.blit(tiempo_restante, (350, 50))
     #Se refresca la imagen
     pygame.display.update()
 
@@ -326,20 +304,21 @@ while repetir:
     texto_resultado = pygame.font.SysFont('console', 80, True)
     esta_en_intro = True
     gana = False
-    personaje_intro = personaje(50, 150, "heroe", ventana_y - 50, 64)
+    personaje_intro = personaje(50, 150, "heroe", ventana_y - 50 - 64, 64)
 
 
 ######################################################################################################################
     # Carga mapa laberinto
     #laberinto_ejemplo = laberinto("mapa.dat") # tamaño ventana (800,800)
-    laberinto_ejemplo = laberinto("laberinto25x25.dat") # tamaño ventana (800,800)
+    #laberinto_ejemplo = laberinto("laberinto25x25.dat") # tamaño ventana (800,800)
+    laberinto_ejemplo = laberinto("laberinto50x50.dat") # tamaño ventana (800,800)
     #laberinto_ejemplo = laberinto("laberinto1.dat") # tamaño ventana (2200,400)
     #laberinto_ejemplo = laberinto("laberinto2.dat") # tamaño ventana (2200, 400)
     laberinto_ejemplo.cargar()
 
 
     #Creación Personaje Héroe
-    heroe=personaje(0, 0,"heroe", ventana_x, laberinto_ejemplo.ancho - 10)#Agregar límite
+    heroe=personaje(0, 0,"heroe", ventana_x, int(laberinto_ejemplo.ancho * 0.7))#Agregar límite
 
 ######################################################################################################################
 
@@ -374,11 +353,13 @@ while repetir:
         personaje_intro.dibujar(ventana)
         pygame.display.update()
 
-
 ######################################################################################################################
+    tiempo_desafio = 60
+    marca_tiempo_inicio = pygame.time.get_ticks()
     # Seccion de juego
-    #esta_jugando=True
     while esta_jugando:
+        segundos_restantes = tiempo_desafio - ((pygame.time.get_ticks() - marca_tiempo_inicio) / 1000)
+
         # control de velocidad del juego
         reloj.tick(27)
         # evento de boton de cierre de ventana
@@ -386,32 +367,21 @@ while repetir:
             if evento.type == pygame.QUIT:
                 quit()
 
-        teclas=pygame.key.get_pressed()
+        teclas = pygame.key.get_pressed()
         heroe.se_mueve_segun(teclas,pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN, pygame.K_SPACE, laberinto_ejemplo)
 
         # con esto se comprueba si el personaje llega al bloque final meta (queso)
         if laberinto_ejemplo.llega_salida(heroe):
             gana = True
             esta_jugando = False
+        
+        if teclas[pygame.K_q] or segundos_restantes < 0:
+            gana = False
+            esta_jugando = False
 
         repintar_cuadro_juego()
 
 ######################################################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     # Seccion de pantalla final
     final = True
     while final:
@@ -430,14 +400,16 @@ while repetir:
                 'HAS PERDIDO! :(', 1, (255, 0, 0))
             imagen_fracaso = pygame.image.load("img2/ratatriste.png")
             ventana.blit(imagen_fracaso, (ventana_x//2 - imagen_fracaso.get_width()//2, ventana_y//2 - imagen_fracaso.get_height()//2))
-        pts = texto_intro.render('Puntaje Total: '+str(puntaje), 1, (255,255,255))
+
+        pts = texto_intro.render('Puntaje Total: ' + str(puntaje), 1, (255,255,255))
         instrucciones = texto_intro.render('Presione ENTER para cerrar...', 1, (255,255,255))
         reintentar = texto_intro.render('Presione R para volver al juego...', 1, (255,255,255))
+
         ventana.blit(titulo, ((ventana_x//2)-titulo.get_width()//2, 10))
-        ventana.blit(resultado, ((ventana_x//2)-resultado.get_width()//2, 200))
+        ventana.blit(resultado, ((ventana_x//2)-resultado.get_width()//2, 100))
         #ventana.blit(pts,((ventana_x//2)-titulo.get_width()//2, 100))
-        ventana.blit(instrucciones, ((ventana_x//2)-instrucciones.get_width()//2, 300))
-        ventana.blit(reintentar, ((ventana_x//2)-reintentar.get_width()//2, 350))
+        ventana.blit(instrucciones, ((ventana_x//2)-instrucciones.get_width()//2, 600))
+        ventana.blit(reintentar, ((ventana_x//2)-reintentar.get_width()//2, 650))
         pygame.display.update()
 
         tecla = pygame.key.get_pressed()
@@ -451,7 +423,6 @@ while repetir:
             final=False
             # se asegura de eliminar los objetos de cada personaje
             del(heroe)
-            del(villano)
 
 # Termina el juego y finaliza los elementos de pygame
 pygame.quit()
